@@ -1,0 +1,8 @@
+CREATE DATABASE IF NOT EXISTS leiloes;
+USE leiloes;
+
+CREATE TABLE IF NOT EXISTS itens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255),
+    descricao VARCHAR(255)
+);
