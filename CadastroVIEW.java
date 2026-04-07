@@ -8,6 +8,8 @@ public class CadastroVIEW extends JFrame {
     private JButton btnSalvar;
 
     public CadastroVIEW() {
+        criarColunaStatus(); // 👈 adiciona automaticamente a coluna no banco
+
         setTitle("Cadastro de Itens");
         setSize(400,200);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -40,6 +42,24 @@ public class CadastroVIEW extends JFrame {
         });
     }
 
+    // ✅ CRIA A COLUNA STATUS AUTOMATICAMENTE
+    private void criarColunaStatus() {
+        try {
+            Connection con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/leiloes", "root", "");
+            Statement st = con.createStatement();
+
+            st.executeUpdate(
+                "ALTER TABLE itens ADD COLUMN status VARCHAR(50) DEFAULT 'Disponivel'"
+            );
+
+        } catch (Exception e) {
+            // Se já existir, ignora o erro
+            System.out.println("Coluna status já existe ou erro: " + e.getMessage());
+        }
+    }
+
+    // ✅ AGORA SALVA COM STATUS
     private void salvarItem() {
         try {
             String nome = txtNome.getText();
@@ -48,16 +68,22 @@ public class CadastroVIEW extends JFrame {
             Connection con = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/leiloes", "root", "");
             PreparedStatement ps = con.prepareStatement(
-                "INSERT INTO itens (nome, descricao) VALUES (?, ?)");
+                "INSERT INTO itens (nome, descricao, status) VALUES (?, ?, 'Disponivel')"
+            );
+
             ps.setString(1, nome);
             ps.setString(2, descricao);
+
             int res = ps.executeUpdate();
 
             if(res > 0) {
                 JOptionPane.showMessageDialog(this, "Cadastro realizado com sucesso!");
+                txtNome.setText("");
+                txtDescricao.setText("");
             } else {
                 JOptionPane.showMessageDialog(this, "Falha no cadastro.");
             }
+
         } catch(Exception e) {
             JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
         }
